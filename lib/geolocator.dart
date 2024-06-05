@@ -31,6 +31,8 @@ class _GeolocatorScreenState extends State<GeolocatorScreen> {
   double? distance; //Define a Distance object to get the calculate distance between two points
   late bool isStartGettingStartPosition; // boolean to know if user tap to have the start position
   late bool isStartGettingEndPosition; // boolean to know if user tap to have the end position
+  late bool isStartGettingCurrentPosition; // boolean to know if user tap to have the end position
+
 
   /*
   Defines four controllers to get the input from the textfield
@@ -230,6 +232,7 @@ class _GeolocatorScreenState extends State<GeolocatorScreen> {
     // TODO: implement initState
     isStartGettingStartPosition = false;
     isStartGettingEndPosition = false;
+    isStartGettingCurrentPosition = false;
     super.initState();
   }
 
@@ -251,9 +254,12 @@ class _GeolocatorScreenState extends State<GeolocatorScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           // Get the current position
+          setState(() {
+            isStartGettingCurrentPosition = true;
+          });
           position = await _getCurrentPosition();
           setState(() {
-
+            isStartGettingCurrentPosition = false;
           });
         },
         label: const Text("Coordonnées",style: TextStyle(fontWeight: FontWeight.bold),),
@@ -271,14 +277,13 @@ class _GeolocatorScreenState extends State<GeolocatorScreen> {
               ListTile(
                   title: const Text("Longitude",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20)),
                   //Checking if the position is not null before to print it
-                  trailing: position != null ? Text("${position!.latitude}",style: const TextStyle(fontWeight: FontWeight.bold)):const SizedBox()
+                  trailing: isStartGettingCurrentPosition == false ? Text("${ position != null ? position!.longitude : ""}",style: const TextStyle(fontWeight: FontWeight.bold)):const SizedBox(width: 10,height: 10,child: CircularProgressIndicator(),)
               ),
               const SizedBox(height: 10),
               ListTile(
                   title: const Text("Latitude",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20)),
                   //Checking if the position is not null before to print it
-                  trailing: position != null ? Text("${position!.latitude}",style: const TextStyle(fontWeight: FontWeight.bold)):const SizedBox()
-              ),
+                  trailing: isStartGettingCurrentPosition == false ? Text("${ position != null ? position!.latitude : ""}",style: const TextStyle(fontWeight: FontWeight.bold)):const SizedBox(width: 10,height: 10,child: CircularProgressIndicator(),)),
               const SizedBox(height: 10),
               /*End current positon widget*/
               Form(
@@ -523,9 +528,10 @@ class _GeolocatorScreenState extends State<GeolocatorScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text("La distance est de ",style: TextStyle()),
-                        Text("${(distance! * 100).round() / 100} mètres ",style: TextStyle(fontSize: 15,color: Theme.of(context).colorScheme.primary)),
+                        Text("${(distance! * 100).round() / 100} mètres ",style: TextStyle(fontSize: 20,color: Theme.of(context).colorScheme.primary)),
                       ],
-                    ) : const SizedBox()
+                    ) : const SizedBox(),
+                    const SizedBox(height: 10)
                   ],
                 ),
               )
